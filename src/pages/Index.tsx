@@ -1,28 +1,165 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AbsenceCalendar } from "@/components/AbsenceCalendar";
 import { AbsenceTable } from "@/components/AbsenceTable";
 import { AddAbsenceForm } from "@/components/AddAbsenceForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Absence } from "@/types/absence";
-import { mockEmployees, mockAbsences } from "@/data/mockData";
+import { Absence, Employee } from "@/types/absence";
 import { CalendarDays, Users, Plus } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
-  const [absences, setAbsences] = useState<Absence[]>(mockAbsences);
+  const [absences, setAbsences] = useState<Absence[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAddAbsence = (newAbsence: Omit<Absence, "id" | "createdAt">) => {
-    const absence: Absence = {
-      ...newAbsence,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
+  // Carica dipendenti dal database
+  const fetchEmployees = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('employees')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      setEmployees(data || []);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare i dipendenti",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Carica assenze dal database
+  const fetchAbsences = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('absences')
+        .select('*')
+        .order('start_date', { ascending: false });
+      
+      if (error) throw error;
+      
+      // Converti il formato del database al formato dell'interfaccia
+      const formattedAbsences: Absence[] = (data || []).map(absence => ({
+        id: absence.id,
+        employeeId: absence.employee_id,
+        employeeName: absence.employee_name,
+        startDate: absence.start_date,
+        endDate: absence.end_date,
+        type: absence.type as 'ferie' | 'permesso' | 'malattia',
+        reason: absence.reason,
+        createdAt: absence.created_at
+      }));
+      
+      setAbsences(formattedAbsences);
+    } catch (error) {
+      console.error('Error fetching absences:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile caricare le assenze",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Carica dati all'avvio
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchEmployees(), fetchAbsences()]);
+      setLoading(false);
     };
-    setAbsences(prev => [...prev, absence]);
+    
+    loadData();
+  }, []);
+
+  const handleAddAbsence = async (newAbsence: Omit<Absence, "id" | "createdAt">) => {
+    try {
+      const { data, error } = await supabase
+        .from('absences')
+        .insert({
+          employee_id: newAbsence.employeeId,
+          employee_name: newAbsence.employeeName,
+          start_date: newAbsence.startDate,
+          end_date: newAbsence.endDate,
+          type: newAbsence.type,
+          reason: newAbsence.reason
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Aggiungi la nuova assenza alla lista
+      const formattedAbsence: Absence = {
+        id: data.id,
+        employeeId: data.employee_id,
+        employeeName: data.employee_name,
+        startDate: data.start_date,
+        endDate: data.end_date,
+        type: data.type,
+        reason: data.reason,
+        createdAt: data.created_at
+      };
+
+      setAbsences(prev => [formattedAbsence, ...prev]);
+      
+      toast({
+        title: "Assenza aggiunta",
+        description: "L'assenza è stata registrata con successo"
+      });
+
+    } catch (error) {
+      console.error('Error adding absence:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiungere l'assenza",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleDeleteAbsence = (id: string) => {
-    setAbsences(prev => prev.filter(absence => absence.id !== id));
+  const handleDeleteAbsence = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('absences')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setAbsences(prev => prev.filter(absence => absence.id !== id));
+      
+      toast({
+        title: "Assenza cancellata",
+        description: "L'assenza è stata rimossa con successo"
+      });
+
+    } catch (error) {
+      console.error('Error deleting absence:', error);
+      toast({
+        title: "Errore",
+        description: "Impossibile cancellare l'assenza",
+        variant: "destructive"
+      });
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Caricamento dati...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100">
@@ -44,7 +181,7 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Dipendenti Totali</p>
-                <p className="text-2xl font-bold text-gray-900">{mockEmployees.length}</p>
+                <p className="text-2xl font-bold text-gray-900">{employees.length}</p>
               </div>
               <Users className="h-8 w-8 text-blue-600" />
             </div>
@@ -108,7 +245,7 @@ const Index = () => {
 
           <TabsContent value="add" className="space-y-6">
             <AddAbsenceForm 
-              employees={mockEmployees} 
+              employees={employees} 
               onAddAbsence={handleAddAbsence} 
             />
           </TabsContent>
