@@ -3,9 +3,10 @@ import { useState, useEffect } from "react";
 import { AbsenceCalendar } from "@/components/AbsenceCalendar";
 import { AbsenceTable } from "@/components/AbsenceTable";
 import { AddAbsenceForm } from "@/components/AddAbsenceForm";
+import { EmployeeManagement } from "@/components/EmployeeManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Absence, Employee } from "@/types/absence";
-import { CalendarDays, Users, Plus } from "lucide-react";
+import { CalendarDays, Users, Plus, Settings } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
 
@@ -217,7 +218,7 @@ const Index = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="calendar" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-white">
+          <TabsList className="grid w-full grid-cols-4 bg-white">
             <TabsTrigger value="calendar" className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4" />
               Calendario
@@ -229,6 +230,10 @@ const Index = () => {
             <TabsTrigger value="add" className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               Aggiungi Assenza
+            </TabsTrigger>
+            <TabsTrigger value="employees" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Gestione Dipendenti
             </TabsTrigger>
           </TabsList>
 
@@ -247,6 +252,13 @@ const Index = () => {
             <AddAbsenceForm 
               employees={employees} 
               onAddAbsence={handleAddAbsence} 
+            />
+          </TabsContent>
+
+          <TabsContent value="employees" className="space-y-6">
+            <EmployeeManagement 
+              employees={employees} 
+              onEmployeesChange={fetchEmployees}
             />
           </TabsContent>
         </Tabs>
