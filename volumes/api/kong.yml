@@ -11,6 +11,32 @@ services:
           - /auth/v1/verify
     plugins:
       - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - X-Auth-Token
+            - Authorization
+            - X-Client-Info
+            - apikey
+            - X-Requested-With
+          exposed_headers:
+            - X-Request-Id
+          credentials: true
+          max_age: 3600
 
   - name: auth-v1-open-callback
     url: http://auth:9999/callback
@@ -21,6 +47,32 @@ services:
           - /auth/v1/callback
     plugins:
       - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - X-Auth-Token
+            - Authorization
+            - X-Client-Info
+            - apikey
+            - X-Requested-With
+          exposed_headers:
+            - X-Request-Id
+          credentials: true
+          max_age: 3600
 
   - name: auth-v1-open-authorize
     url: http://auth:9999/authorize
@@ -31,6 +83,32 @@ services:
           - /auth/v1/authorize
     plugins:
       - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - X-Auth-Token
+            - Authorization
+            - X-Client-Info
+            - apikey
+            - X-Requested-With
+          exposed_headers:
+            - X-Request-Id
+          credentials: true
+          max_age: 3600
 
   - name: auth-v1
     _comment: "GoTrue: /auth/v1/* -> http://auth:9999/*"
@@ -42,6 +120,32 @@ services:
           - /auth/v1/
     plugins:
       - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - X-Auth-Token
+            - Authorization
+            - X-Client-Info
+            - apikey
+            - X-Requested-With
+          exposed_headers:
+            - X-Request-Id
+          credentials: true
+          max_age: 3600
 
   - name: rest-v1
     _comment: "PostgREST: /rest/v1/* -> http://rest:3000/*"
@@ -53,43 +157,29 @@ services:
           - /rest/v1/
     plugins:
       - name: cors
-
-  - name: storage-v1
-    _comment: "Storage: /storage/v1/* -> http://storage:5000/*"
-    url: http://storage:5000/
-    routes:
-      - name: storage-v1-all
-        strip_path: true
-        paths:
-          - /storage/v1/
-    plugins:
-      - name: cors
-
-plugins:
-  - name: cors
-    config:
-      origins:
-        - "*"
-      methods:
-        - GET
-        - POST
-        - PUT
-        - PATCH
-        - DELETE
-        - OPTIONS
-      headers:
-        - Accept
-        - Accept-Version
-        - Content-Length
-        - Content-MD5
-        - Content-Type
-        - Date
-        - X-Auth-Token
-        - Authorization
-        - X-Client-Info
-        - apikey
-        - X-Requested-With
-      exposed_headers:
-        - X-Request-Id
-      credentials: true
-      max_age: 3600
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - PUT
+            - PATCH
+            - DELETE
+            - OPTIONS
+          headers:
+            - Accept
+            - Accept-Version
+            - Content-Length
+            - Content-MD5
+            - Content-Type
+            - Date
+            - X-Auth-Token
+            - Authorization
+            - X-Client-Info
+            - apikey
+            - X-Requested-With
+          exposed_headers:
+            - X-Request-Id
+          credentials: true
+          max_age: 3600

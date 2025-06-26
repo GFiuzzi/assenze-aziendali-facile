@@ -77,7 +77,7 @@ services:
     environment:
       PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD:-your_postgres_password}@db:5432/${POSTGRES_DB:-postgres}
       PGRST_OPENAPI_SERVER_PROXY_URI: http://localhost:8000/rest/v1/
-      PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS:-public,storage,graphql_public}
+      PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS:-public}
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-token-with-at-least-32-characters-long}
       PGRST_DB_USE_LEGACY_GUCS: "false"
@@ -110,36 +110,6 @@ services:
         condition: service_healthy
       rest:
         condition: service_started
-    networks:
-      - supabase_network
-
-  storage:
-    image: supabase/storage-api:v0.40.4
-    depends_on:
-      db:
-        condition: service_healthy
-      rest:
-        condition: service_started
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/status"]
-      timeout: 5s
-      interval: 5s
-      retries: 3
-      start_period: 30s
-    restart: unless-stopped
-    environment:
-      ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-      SERVICE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
-      POSTGREST_URL: http://rest:3000
-      PGRST_JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-token-with-at-least-32-characters-long}
-      DATABASE_URL: postgres://supabase_storage_admin:${POSTGRES_PASSWORD:-your_postgres_password}@db:5432/${POSTGRES_DB:-postgres}
-      STORAGE_BACKEND: file
-      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
-      TENANT_ID: stub
-      REGION: stub
-      GLOBAL_S3_BUCKET: stub
-    volumes:
-      - ./volumes/storage:/var/lib/storage:z
     networks:
       - supabase_network
 
