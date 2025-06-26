@@ -13,7 +13,9 @@ services:
       - name: cors
         config:
           origins:
-            - "*"
+            - "http://localhost:3000"
+            - "http://calendario.idrolab.local:3000"
+            - "https://calendario.idrolab.local:3000"
           methods:
             - GET
             - POST
@@ -49,7 +51,9 @@ services:
       - name: cors
         config:
           origins:
-            - "*"
+            - "http://localhost:3000"
+            - "http://calendario.idrolab.local:3000"
+            - "https://calendario.idrolab.local:3000"
           methods:
             - GET
             - POST
@@ -85,7 +89,9 @@ services:
       - name: cors
         config:
           origins:
-            - "*"
+            - "http://localhost:3000"
+            - "http://calendario.idrolab.local:3000"
+            - "https://calendario.idrolab.local:3000"
           methods:
             - GET
             - POST
@@ -121,7 +127,9 @@ services:
       - name: cors
         config:
           origins:
-            - "*"
+            - "http://localhost:3000"
+            - "http://calendario.idrolab.local:3000"
+            - "https://calendario.idrolab.local:3000"
           methods:
             - GET
             - POST
@@ -157,7 +165,9 @@ services:
       - name: cors
         config:
           origins:
-            - "*"
+            - "http://localhost:3000"
+            - "http://calendario.idrolab.local:3000"
+            - "https://calendario.idrolab.local:3000"
           methods:
             - GET
             - POST
