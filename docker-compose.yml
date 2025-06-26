@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - VITE_SUPABASE_URL=http://localhost:8000
+      - VITE_SUPABASE_URL=http://calendario.idrolab.local:8000
       - VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
     depends_on:
       kong:
@@ -50,10 +50,10 @@ services:
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
-      API_EXTERNAL_URL: ${API_EXTERNAL_URL:-http://localhost:8000}
+      API_EXTERNAL_URL: ${API_EXTERNAL_URL:-http://calendario.idrolab.local:8000}
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD:-your_postgres_password}@db:5432/${POSTGRES_DB:-postgres}
-      GOTRUE_SITE_URL: ${SITE_URL:-http://localhost:3000}
+      GOTRUE_SITE_URL: ${SITE_URL:-http://calendario.idrolab.local:3000}
       GOTRUE_JWT_ADMIN_ROLES: service_role
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
@@ -76,7 +76,7 @@ services:
     restart: unless-stopped
     environment:
       PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD:-your_postgres_password}@db:5432/${POSTGRES_DB:-postgres}
-      PGRST_OPENAPI_SERVER_PROXY_URI: http://localhost:8000/rest/v1/
+      PGRST_OPENAPI_SERVER_PROXY_URI: http://calendario.idrolab.local:8000/rest/v1/
       PGRST_DB_SCHEMAS: ${PGRST_DB_SCHEMAS:-public}
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-token-with-at-least-32-characters-long}
