@@ -1,48 +1,116 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
+console.log('🔧 API Base URL:', API_BASE_URL);
+
 export const api = {
   async getEmployees() {
-    const response = await fetch(`${API_BASE_URL}/api/employees`);
-    if (!response.ok) throw new Error('Failed to fetch employees');
-    return response.json();
+    console.log('📋 Richiesta lista dipendenti...');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/employees`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log('✅ Dipendenti caricati:', data.length);
+      return data;
+    } catch (error) {
+      console.error('❌ Errore caricamento dipendenti:', error);
+      throw new Error('Impossibile caricare i dipendenti');
+    }
   },
 
   async getAbsences() {
-    const response = await fetch(`${API_BASE_URL}/api/absences`);
-    if (!response.ok) throw new Error('Failed to fetch absences');
-    return response.json();
+    console.log('📅 Richiesta lista assenze...');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/absences`);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      const data = await response.json();
+      console.log('✅ Assenze caricate:', data.length);
+      return data;
+    } catch (error) {
+      console.error('❌ Errore caricamento assenze:', error);
+      throw new Error('Impossibile caricare le assenze');
+    }
   },
 
   async addAbsence(absence: any) {
-    const response = await fetch(`${API_BASE_URL}/api/absences`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(absence),
-    });
-    if (!response.ok) throw new Error('Failed to add absence');
-    return response.json();
+    console.log('📝 Aggiunta nuova assenza:', absence);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/absences`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(absence),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Assenza aggiunta:', data.id);
+      return data;
+    } catch (error) {
+      console.error('❌ Errore aggiunta assenza:', error);
+      throw new Error('Impossibile aggiungere l\'assenza');
+    }
   },
 
   async deleteAbsence(id: string) {
-    const response = await fetch(`${API_BASE_URL}/api/absences/${id}`, {
-      method: 'DELETE',
-    });
-    if (!response.ok) throw new Error('Failed to delete absence');
-    return response.json();
+    console.log('🗑️ Eliminazione assenza ID:', id);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/absences/${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Assenza eliminata');
+      return data;
+    } catch (error) {
+      console.error('❌ Errore eliminazione assenza:', error);
+      throw new Error('Impossibile eliminare l\'assenza');
+    }
   },
 
   async addEmployee(employee: any) {
-    const response = await fetch(`${API_BASE_URL}/api/employees`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(employee),
-    });
-    if (!response.ok) throw new Error('Failed to add employee');
-    return response.json();
+    console.log('👤 Aggiunta nuovo dipendente:', employee);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/employees`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(employee),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      console.log('✅ Dipendente aggiunto:', data.id);
+      return data;
+    } catch (error) {
+      console.error('❌ Errore aggiunta dipendente:', error);
+      throw new Error('Impossibile aggiungere il dipendente');
+    }
   },
+
+  async healthCheck() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/health`);
+      return response.ok;
+    } catch (error) {
+      console.error('❌ Health check fallito:', error);
+      return false;
+    }
+  }
 };

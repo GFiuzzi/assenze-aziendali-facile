@@ -1,51 +1,63 @@
 
 #!/bin/bash
 
-echo "🐳 Avvio applicazione Gestione Assenze con Docker..."
+echo "🐳 Avvio Gestione Assenze - Versione Semplificata"
+echo "=================================================="
 
-# Controlla se Docker è installato
+# Verifica Docker
 if ! command -v docker &> /dev/null; then
-    echo "❌ Docker non è installato. Installalo prima di continuare."
+    echo "❌ Docker non installato!"
     exit 1
 fi
 
-# Controlla se Docker Compose è installato
 if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Docker Compose non è installato. Installalo prima di continuare."
+    echo "❌ Docker Compose non installato!"
     exit 1
 fi
 
-# Pulisci tutto e riavvia
+# Pulizia completa
 echo "🧹 Pulizia configurazione precedente..."
-docker-compose down -v
+docker-compose down -v --remove-orphans
 docker system prune -f
 
-# Crea le directory necessarie
-echo "📁 Creazione directory..."
-mkdir -p backend
+# Rimozione volumi specifici
+echo "🗑️ Rimozione volumi database..."
+docker volume rm $(docker volume ls -q | grep -E "assenze|db_data") 2>/dev/null || true
 
-# Avvia i servizi
-echo "🚀 Avvio servizi Docker..."
+# Build e avvio
+echo "🔨 Build e avvio servizi..."
 docker-compose up --build -d
 
-# Attendi che i servizi siano pronti
-echo "⏳ Attendo che i servizi siano pronti..."
-sleep 30
+# Attesa servizi
+echo "⏳ Attesa avvio servizi..."
+sleep 15
 
-# Controlla lo stato dei servizi
-echo "🔍 Controllo stato servizi..."
+# Verifica stato
+echo "🔍 Controllo stato servizi:"
 docker-compose ps
 
+# Test connettività
 echo ""
-echo "✅ Applicazione avviata con successo!"
+echo "🧪 Test connettività API..."
+if curl -s http://localhost:8080/health > /dev/null; then
+    echo "✅ API Backend raggiungibile"
+else
+    echo "❌ API Backend non raggiungibile"
+fi
+
 echo ""
-echo "🌐 Accesso ai servizi:"
-echo "   - Frontend React: http://calendario.idrolab.local:3000"
-echo "   - API Backend: http://calendario.idrolab.local:8080"
-echo "   - Database PostgreSQL: localhost:5432"
+echo "🎉 APPLICAZIONE PRONTA!"
+echo "======================="
+echo "🌐 Frontend: http://localhost:3000"
+echo "🔧 API Backend: http://localhost:8080"
+echo "🗄️ Database: localhost:5432"
 echo ""
-echo "📚 Comandi utili:"
-echo "   - Fermare: docker-compose down"
-echo "   - Logs: docker-compose logs -f"
-echo "   - Riavviare: docker-compose restart"
+echo "📊 Dati di test già inseriti:"
+echo "   - 6 dipendenti di esempio"
+echo "   - 3 assenze di esempio"
+echo ""
+echo "🛠️ Comandi utili:"
+echo "   docker-compose logs -f        # Visualizza logs"
+echo "   docker-compose restart        # Riavvia servizi"
+echo "   docker-compose down           # Ferma tutto"
 echo ""
