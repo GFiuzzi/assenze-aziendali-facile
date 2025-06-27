@@ -7,7 +7,7 @@ import { EmployeeManagement } from "@/components/EmployeeManagement";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Absence, Employee } from "@/types/absence";
 import { CalendarDays, Users, Plus, Settings } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -18,13 +18,8 @@ const Index = () => {
   // Carica dipendenti dal database
   const fetchEmployees = async () => {
     try {
-      const { data, error } = await supabase
-        .from('employees')
-        .select('*')
-        .order('name');
-      
-      if (error) throw error;
-      setEmployees(data || []);
+      const data = await api.getEmployees();
+      setEmployees(data);
     } catch (error) {
       console.error('Error fetching employees:', error);
       toast({
@@ -38,17 +33,12 @@ const Index = () => {
   // Carica assenze dal database
   const fetchAbsences = async () => {
     try {
-      const { data, error } = await supabase
-        .from('absences')
-        .select('*')
-        .order('start_date', { ascending: false });
-      
-      if (error) throw error;
+      const data = await api.getAbsences();
       
       // Converti il formato del database al formato dell'interfaccia
-      const formattedAbsences: Absence[] = (data || []).map(absence => ({
-        id: absence.id,
-        employeeId: absence.employee_id,
+      const formattedAbsences: Absence[] = data.map((absence: any) => ({
+        id: absence.id.toString(),
+        employeeId: absence.employee_id.toString(),
         employeeName: absence.employee_name,
         startDate: absence.start_date,
         endDate: absence.end_date,
@@ -81,25 +71,19 @@ const Index = () => {
 
   const handleAddAbsence = async (newAbsence: Omit<Absence, "id" | "createdAt">) => {
     try {
-      const { data, error } = await supabase
-        .from('absences')
-        .insert({
-          employee_id: newAbsence.employeeId,
-          employee_name: newAbsence.employeeName,
-          start_date: newAbsence.startDate,
-          end_date: newAbsence.endDate,
-          type: newAbsence.type,
-          reason: newAbsence.reason
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const data = await api.addAbsence({
+        employee_id: parseInt(newAbsence.employeeId),
+        employee_name: newAbsence.employeeName,
+        start_date: newAbsence.startDate,
+        end_date: newAbsence.endDate,
+        type: newAbsence.type,
+        reason: newAbsence.reason
+      });
 
       // Aggiungi la nuova assenza alla lista
       const formattedAbsence: Absence = {
-        id: data.id,
-        employeeId: data.employee_id,
+        id: data.id.toString(),
+        employeeId: data.employee_id.toString(),
         employeeName: data.employee_name,
         startDate: data.start_date,
         endDate: data.end_date,
@@ -127,13 +111,7 @@ const Index = () => {
 
   const handleDeleteAbsence = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('absences')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
+      await api.deleteAbsence(id);
       setAbsences(prev => prev.filter(absence => absence.id !== id));
       
       toast({

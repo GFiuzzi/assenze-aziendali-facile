@@ -15,22 +15,18 @@ if ! command -v docker-compose &> /dev/null; then
     exit 1
 fi
 
-# Crea il file .env se non esiste
-if [ ! -f .env ]; then
-    echo "📝 Creazione file .env..."
-    cp .env.example .env
-    echo "⚠️  IMPORTANTE: Modifica il file .env con le tue configurazioni prima di andare in produzione!"
-fi
+# Pulisci tutto e riavvia
+echo "🧹 Pulizia configurazione precedente..."
+docker-compose down -v
+docker system prune -f
 
 # Crea le directory necessarie
 echo "📁 Creazione directory..."
-mkdir -p volumes/db/init
-mkdir -p volumes/api
-mkdir -p volumes/storage
+mkdir -p backend
 
 # Avvia i servizi
 echo "🚀 Avvio servizi Docker..."
-docker-compose up -d
+docker-compose up --build -d
 
 # Attendi che i servizi siano pronti
 echo "⏳ Attendo che i servizi siano pronti..."
@@ -44,8 +40,8 @@ echo ""
 echo "✅ Applicazione avviata con successo!"
 echo ""
 echo "🌐 Accesso ai servizi:"
-echo "   - Frontend React: http://localhost:3000"
-echo "   - API Supabase: http://localhost:8000"
+echo "   - Frontend React: http://calendario.idrolab.local:3000"
+echo "   - API Backend: http://calendario.idrolab.local:8080"
 echo "   - Database PostgreSQL: localhost:5432"
 echo ""
 echo "📚 Comandi utili:"
