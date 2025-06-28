@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { AbsenceCalendar } from "@/components/AbsenceCalendar";
 import { AbsenceTable } from "@/components/AbsenceTable";
@@ -10,6 +9,27 @@ import { CalendarDays, Users, Plus, Settings } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 
+// Dati mock temporanei per il test
+const MOCK_EMPLOYEES: Employee[] = [
+  { id: "1", name: "Mario Rossi", email: "mario.rossi@azienda.it", department: "IT" },
+  { id: "2", name: "Laura Bianchi", email: "laura.bianchi@azienda.it", department: "HR" },
+  { id: "3", name: "Giuseppe Verdi", email: "giuseppe.verdi@azienda.it", department: "Vendite" },
+  { id: "4", name: "Anna Neri", email: "anna.neri@azienda.it", department: "Marketing" }
+];
+
+const MOCK_ABSENCES: Absence[] = [
+  {
+    id: "1",
+    employeeId: "1",
+    employeeName: "Mario Rossi",
+    startDate: "2024-01-15",
+    endDate: "2024-01-17",
+    type: "ferie",
+    reason: "Vacanze",
+    createdAt: "2024-01-10T10:00:00Z"
+  }
+];
+
 const Index = () => {
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -18,13 +38,16 @@ const Index = () => {
   // Carica dipendenti dal database
   const fetchEmployees = async () => {
     try {
+      console.log('🔍 Tentativo connessione API per dipendenti...');
       const data = await api.getEmployees();
       setEmployees(data);
+      console.log('✅ Dipendenti caricati da API:', data.length);
     } catch (error) {
-      console.error('Error fetching employees:', error);
+      console.error('❌ API non raggiungibile, uso dati mock per test:', error);
+      setEmployees(MOCK_EMPLOYEES);
       toast({
-        title: "Errore",
-        description: "Impossibile caricare i dipendenti",
+        title: "Modalità Test",
+        description: "Usando dati mock - API non raggiungibile",
         variant: "destructive"
       });
     }
@@ -33,6 +56,7 @@ const Index = () => {
   // Carica assenze dal database
   const fetchAbsences = async () => {
     try {
+      console.log('🔍 Tentativo connessione API per assenze...');
       const data = await api.getAbsences();
       
       // Converti il formato del database al formato dell'interfaccia
@@ -48,13 +72,10 @@ const Index = () => {
       }));
       
       setAbsences(formattedAbsences);
+      console.log('✅ Assenze caricate da API:', formattedAbsences.length);
     } catch (error) {
-      console.error('Error fetching absences:', error);
-      toast({
-        title: "Errore",
-        description: "Impossibile caricare le assenze",
-        variant: "destructive"
-      });
+      console.error('❌ API non raggiungibile, uso dati mock per test:', error);
+      setAbsences(MOCK_ABSENCES);
     }
   };
 
@@ -71,6 +92,7 @@ const Index = () => {
 
   const handleAddAbsence = async (newAbsence: Omit<Absence, "id" | "createdAt">) => {
     try {
+      console.log('🔍 Tentativo aggiunta assenza via API...');
       const data = await api.addAbsence({
         employee_id: parseInt(newAbsence.employeeId),
         employee_name: newAbsence.employeeName,
@@ -100,10 +122,24 @@ const Index = () => {
       });
 
     } catch (error) {
-      console.error('Error adding absence:', error);
+      console.error('❌ API non raggiungibile, simulo aggiunta locale:', error);
+      // Fallback: aggiungi solo localmente per il test
+      const mockAbsence: Absence = {
+        id: Date.now().toString(),
+        employeeId: newAbsence.employeeId,
+        employeeName: newAbsence.employeeName,
+        startDate: newAbsence.startDate,
+        endDate: newAbsence.endDate,
+        type: newAbsence.type,
+        reason: newAbsence.reason,
+        createdAt: new Date().toISOString()
+      };
+      
+      setAbsences(prev => [mockAbsence, ...prev]);
+      
       toast({
-        title: "Errore",
-        description: "Impossibile aggiungere l'assenza",
+        title: "Assenza aggiunta (modalità test)",
+        description: "L'assenza è stata aggiunta solo localmente - API non raggiungibile",
         variant: "destructive"
       });
     }
