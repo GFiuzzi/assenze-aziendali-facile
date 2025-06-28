@@ -56,6 +56,11 @@ export function AddAbsenceForm({ employees, onAddAbsence }: AddAbsenceFormProps)
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      employeeId: "",
+      type: undefined,
+      reason: "",
+    }
   });
 
   const onSubmit = async (data: FormData) => {
@@ -84,15 +89,16 @@ export function AddAbsenceForm({ employees, onAddAbsence }: AddAbsenceFormProps)
 
       onAddAbsence(newAbsence);
 
-      // Simula invio email
-      console.log("Sending email notification for new absence:", newAbsence);
-
       toast({
         title: "Assenza aggiunta con successo",
-        description: `L'assenza di ${selectedEmployee?.name} è stata registrata. Email di notifica inviata.`,
+        description: `L'assenza di ${selectedEmployee?.name} è stata registrata.`,
       });
 
-      form.reset();
+      form.reset({
+        employeeId: "",
+        type: undefined,
+        reason: "",
+      });
     } catch (error) {
       toast({
         title: "Errore",
@@ -121,9 +127,12 @@ export function AddAbsenceForm({ employees, onAddAbsence }: AddAbsenceFormProps)
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Dipendente</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value}
+                    >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Seleziona dipendente" />
                         </SelectTrigger>
                       </FormControl>
@@ -146,9 +155,12 @@ export function AddAbsenceForm({ employees, onAddAbsence }: AddAbsenceFormProps)
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipo Assenza</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value}
+                    >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Seleziona tipo" />
                         </SelectTrigger>
                       </FormControl>
